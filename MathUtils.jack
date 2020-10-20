@@ -1,0 +1,16 @@
+class MathUtils {
+    function int getCircularIndex(int arraySize, int currentIndex, int offset) {
+        var int desiredIndex;
+        var int resultIndex;
+        let desiredIndex = currentIndex + offset;
+
+        if (desiredIndex > (arraySize - 1)) {
+            resultIndex = (arraySize - 1) - desiredIndex;
+        }
+        else {
+            resultIndex = desiredIndex;
+        }
+
+        return resultIndex
+    }
+}

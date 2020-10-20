@@ -2,14 +2,22 @@ class GameEngine {
     field Array enemySequence;
     field int enemySequenceLength;
 
+    field int screenLength;
+    field int screenHeight;
+    field int bitmapBoxSize;
+
     method void initializeComponents() {
         do initializeEnemySequence();
 
+        let screenHeight = 256;
+        let screenLength = 512;
+        let bitmapBoxSize = 16;
+
         let enemySequenceLength = 33;
 
-        let dinoXPositionOffset = 32 / 2 - 1; // half of horizontal axis
-        let dinoNoJumpYPosition = 32 * 10;
-        let dinoJumpYPosition = 32 * 11;
+        let dinoXPositionOffset = ((screenLength / bitmapBoxSize) / 2) - 1; // half of horizontal axis
+        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 10; // 10th row
+        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 11; // 11th row
     }
 
     method void run() {
@@ -21,8 +29,10 @@ class GameEngine {
         var int gameStep;
         let gameStep = 0;
 
+        do drawTerrain();
+
         while() {
-            let currentEnemyIndex = 33 - Math.abs(gameStep - 33)
+            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, gameStep, dinoXPositionOffset + 1)
             let currentEnemy = enemySequence[currentEnemyIndex];
 
             if (jumped == true and jumpCountdown > 0) {
@@ -38,6 +48,14 @@ class GameEngine {
                 let jumpCountdown = 4;
             }
 
+            if (jumped) {
+                let dinoPosition = dinoJumpYPosition + (dinoXPositionOffset * 32);
+            }
+            else {
+                let dinoPosition = dinoNoJumpYPosition + (dinoXPositionOffset * 32);
+            }
+
+            do drawDino(dinoPosition);
             do printEnemySequence(gameStep);
             
             // prepare next stage
@@ -49,44 +67,44 @@ class GameEngine {
         }
     }
 
-    method initializeEnemySequence() {
+    method void initializeEnemySequence() {
         let enemySequence = Array.new(33);
-        do enemySequence[0] = 0;
-        do enemySequence[1] = 0;
-        do enemySequence[2] = 0;
-        do enemySequence[3] = 0;
-        do enemySequence[4] = 1; // cactus
-        do enemySequence[5] = 0;
-        do enemySequence[6] = 0;
-        do enemySequence[7] = 0;
-        do enemySequence[8] = 0;
-        do enemySequence[9] = 0;
-        do enemySequence[10] = 0;
-        do enemySequence[11] = 0;
-        do enemySequence[12] = 0;
-        do enemySequence[13] = 0;
-        do enemySequence[14] = 1;
-        do enemySequence[15] = 0;
-        do enemySequence[16] = 0;
-        do enemySequence[17] = 0;
-        do enemySequence[18] = 0;
-        do enemySequence[19] = 0;
-        do enemySequence[20] = 0;
-        do enemySequence[21] = 0;
-        do enemySequence[22] = 0;
-        do enemySequence[23] = 0;
-        do enemySequence[24] = 1; // cactus
-        do enemySequence[25] = 0;
-        do enemySequence[26] = 0;
-        do enemySequence[27] = 0;
-        do enemySequence[28] = 0;
-        do enemySequence[29] = 0;
-        do enemySequence[30] = 0;
-        do enemySequence[31] = 0;
-        do enemySequence[32] = 0;
+        let enemySequence[0] = 0;
+        let enemySequence[1] = 0;
+        let enemySequence[2] = 0;
+        let enemySequence[3] = 0;
+        let enemySequence[4] = 1; // cactus
+        let enemySequence[5] = 0;
+        let enemySequence[6] = 0;
+        let enemySequence[7] = 0;
+        let enemySequence[8] = 0;
+        let enemySequence[9] = 0;
+        let enemySequence[10] = 0;
+        let enemySequence[11] = 0;
+        let enemySequence[12] = 0;
+        let enemySequence[13] = 0;
+        let enemySequence[14] = 1;
+        let enemySequence[15] = 0;
+        let enemySequence[16] = 0;
+        let enemySequence[17] = 0;
+        let enemySequence[18] = 0;
+        let enemySequence[19] = 0;
+        let enemySequence[20] = 0;
+        let enemySequence[21] = 0;
+        let enemySequence[22] = 0;
+        let enemySequence[23] = 0;
+        let enemySequence[24] = 1; // cactus
+        let enemySequence[25] = 0;
+        let enemySequence[26] = 0;
+        let enemySequence[27] = 0;
+        let enemySequence[28] = 0;
+        let enemySequence[29] = 0;
+        let enemySequence[30] = 0;
+        let enemySequence[31] = 0;
+        let enemySequence[32] = 0;
     }
 
-    function void drawDino(int location) {
+    method void drawDino(int location) {
         let memAddress = 16384+location;
         do Memory.poke(memAddress+0, 32512);
         do Memory.poke(memAddress+32, -128);
@@ -107,8 +125,28 @@ class GameEngine {
         return;
     }
 
+    method void drawTerrain() {
+        var int position;
+        let position = 12 * (screenHeight / bitmapBoxSize);
+
+        var int i;
+        let i = 0;
+        while(i < (screenLength / bitmapBoxSize)) {
+            do drawTerrain1(position);
+            let position = position + 32;
+
+            do drawTerrain2(position);
+            let position = position + 32;
+
+            do drawTerrain3(position);
+            let position = position + 32;
+
+            let i = i + 1;
+        }
+    }
+
     // line is in 11th and 12th rows
-    function void drawTerrain1(int location) {
+    method void drawTerrain1(int location) {
         let memAddress = 16384+location;
         do Memory.poke(memAddress+0, 0);
         do Memory.poke(memAddress+32, 0);
@@ -129,7 +167,7 @@ class GameEngine {
         return;
     }
 
-    function void drawTerrain2(int location) {
+    method void drawTerrain2(int location) {
         let memAddress = 16384+location;
         do Memory.poke(memAddress+0, 0);
         do Memory.poke(memAddress+32, 0);
@@ -150,7 +188,7 @@ class GameEngine {
         return;
     }
 
-    function void drawTerrain3(int location) {
+    method void drawTerrain3(int location) {
         let memAddress = 16384+location;
         do Memory.poke(memAddress+0, 0);
         do Memory.poke(memAddress+32, 0);
