@@ -1,0 +1,9 @@
+class Main {
+    function void main() {
+        var GameEngine engine;
+        let gameEngine = GameEngine.new();
+        do gameEngine.run();
+        do gameEngine.dispose();
+        return;
+    }
+}
