@@ -6,6 +6,14 @@ class GameEngine {
     field int screenHeight;
     field int bitmapBoxSize;
 
+    field int dinoXPositionOffset;
+    field int dinoNoJumpYPosition;
+    field int dinoJumpYPosition;
+
+    constructor GameEngine new() {
+        return this;
+    }
+
     method void initializeComponents() {
         do initializeEnemySequence();
 
@@ -16,55 +24,71 @@ class GameEngine {
         let enemySequenceLength = 33;
 
         let dinoXPositionOffset = ((screenLength / bitmapBoxSize) / 2) - 1; // half of horizontal axis
-        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 10; // 10th row
-        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 11; // 11th row
+        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 11; // 10th row
+        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 10; // 11th row
+
+        return;
     }
 
     method void run() {
-        do initializeComponents();
         var char key;
         var int currentEnemy;
         var int dinoPosition;
-
+        var boolean clash;
         var int gameStep;
+        var int currentEnemyIndex;
+        var boolean jumped;
+        var int jumpCountdown;
+
+        let clash = false;
+
         let gameStep = 0;
 
+        do initializeComponents();
         do drawTerrain();
 
-        while() {
-            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, gameStep, dinoXPositionOffset + 1)
+        while(~clash) {
+            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, gameStep, dinoXPositionOffset + 1);
             let currentEnemy = enemySequence[currentEnemyIndex];
 
-            if (jumped == true and jumpCountdown > 0) {
-                let jumpCountdown = jumpCountdown - 1;
-            }
+            // if (jumped & (jumpCountdown > 0)) {
+            //     let jumpCountdown = jumpCountdown - 1;
+            // }
 
-            if (jumpCountdown = 0) {
-                let jumped = false;
-            }
+            // if (jumpCountdown = 0) {
+            //     let jumped = false;
+            // }
 
-            if (key = 131 & ~jumped) { // up arrow
-                let jumped = true;
-                let jumpCountdown = 4;
-            }
+            // let key = Keyboard.keyPressed();
+            // if ((key = 131) & ~jumped) { // up arrow
+            //     let jumped = true;
+            //     let jumpCountdown = 4;
+            // }
 
-            if (jumped) {
-                let dinoPosition = dinoJumpYPosition + (dinoXPositionOffset * 32);
-            }
-            else {
-                let dinoPosition = dinoNoJumpYPosition + (dinoXPositionOffset * 32);
-            }
+            // if (jumped) {
+            //     let dinoPosition = dinoJumpYPosition + (dinoXPositionOffset * bitmapBoxSize);
+            // }
+            // else {
+            //     let dinoPosition = dinoNoJumpYPosition + (dinoXPositionOffset * bitmapBoxSize);
+            // }
 
-            do drawDino(dinoPosition);
+            // do Graphics.drawDino(dinoPosition);
             do printEnemySequence(gameStep);
+
+            // if ((currentEnemy = 1) & ~jumped) {
+            //     let clash = true;
+            // }
             
             // prepare next stage
-            do gameStep = gameStep + 1;
+            let gameStep = gameStep + 1;
             if (gameStep = enemySequenceLength) {
-                do gameStep = 0;
+                let gameStep = 0;
             }
-            do Sys.wait(5);
+            do Sys.wait(1000);
         }
+
+        return;
+        // clash happened
     }
 
     method void initializeEnemySequence() {
@@ -102,110 +126,63 @@ class GameEngine {
         let enemySequence[30] = 0;
         let enemySequence[31] = 0;
         let enemySequence[32] = 0;
+        return;
     }
 
-    method void drawDino(int location) {
-        let memAddress = 16384+location;
-        do Memory.poke(memAddress+0, 32512);
-        do Memory.poke(memAddress+32, -128);
-        do Memory.poke(memAddress+64, -640);
-        do Memory.poke(memAddress+96, -128);
-        do Memory.poke(memAddress+128, 3968);
-        do Memory.poke(memAddress+160, 16320);
-        do Memory.poke(memAddress+192, 2016);
-        do Memory.poke(memAddress+224, 16369);
-        do Memory.poke(memAddress+256, 10235);
-        do Memory.poke(memAddress+288, 2047);
-        do Memory.poke(memAddress+320, 2047);
-        do Memory.poke(memAddress+352, 1022);
-        do Memory.poke(memAddress+384, 508);
-        do Memory.poke(memAddress+416, 440);
-        do Memory.poke(memAddress+448, 264);
-        do Memory.poke(memAddress+480, 792);
+    method void printEnemySequence(int gameStep) {
+        var int enemyIndex;
+        var int i;
+        var int enemyPosition;
+        var int enemyValue;
+
+        let enemyIndex = gameStep;
+        let i = 0;
+        while(i < (screenLength / bitmapBoxSize)) {
+            let enemyIndex = MathUtils.getCircularIndex(enemySequence, gameStep, i);
+            let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) - i);
+
+            let enemyValue = enemySequence[enemyIndex];
+
+            if (enemyValue = 1) {
+                do Graphics.drawCactus(enemyPosition);
+            }
+
+            if (enemyValue = 0) {
+                do Graphics.drawBlank(enemyPosition);
+            }
+
+            let i = i + 1;
+        }
+
         return;
     }
 
     method void drawTerrain() {
         var int position;
-        let position = 12 * (screenHeight / bitmapBoxSize);
-
         var int i;
+
+        let position = 12 * (screenHeight / bitmapBoxSize) * 32;
+
         let i = 0;
         while(i < (screenLength / bitmapBoxSize)) {
-            do drawTerrain1(position);
-            let position = position + 32;
+            do Graphics.drawTerrain1(position);
+            let position = position + 1;
 
-            do drawTerrain2(position);
-            let position = position + 32;
+            do Graphics.drawTerrain2(position);
+            let position = position + 1;
 
-            do drawTerrain3(position);
-            let position = position + 32;
+            do Graphics.drawTerrain3(position);
+            let position = position + 1;
 
             let i = i + 1;
         }
-    }
 
-    // line is in 11th and 12th rows
-    method void drawTerrain1(int location) {
-        let memAddress = 16384+location;
-        do Memory.poke(memAddress+0, 0);
-        do Memory.poke(memAddress+32, 0);
-        do Memory.poke(memAddress+64, 0);
-        do Memory.poke(memAddress+96, 0);
-        do Memory.poke(memAddress+128, 0);
-        do Memory.poke(memAddress+160, 0);
-        do Memory.poke(memAddress+192, 0);
-        do Memory.poke(memAddress+224, 0);
-        do Memory.poke(memAddress+256, 0);
-        do Memory.poke(memAddress+288, 0);
-        do Memory.poke(memAddress+320, -1);
-        do Memory.poke(memAddress+352, -1);
-        do Memory.poke(memAddress+384, 0);
-        do Memory.poke(memAddress+416, 8256);
-        do Memory.poke(memAddress+448, 6);
-        do Memory.poke(memAddress+480, 544);
         return;
     }
 
-    method void drawTerrain2(int location) {
-        let memAddress = 16384+location;
-        do Memory.poke(memAddress+0, 0);
-        do Memory.poke(memAddress+32, 0);
-        do Memory.poke(memAddress+64, 0);
-        do Memory.poke(memAddress+96, 0);
-        do Memory.poke(memAddress+128, 0);
-        do Memory.poke(memAddress+160, 0);
-        do Memory.poke(memAddress+192, 0);
-        do Memory.poke(memAddress+224, 0);
-        do Memory.poke(memAddress+256, 0);
-        do Memory.poke(memAddress+288, 0);
-        do Memory.poke(memAddress+320, -1);
-        do Memory.poke(memAddress+352, -1);
-        do Memory.poke(memAddress+384, 0);
-        do Memory.poke(memAddress+416, 4224);
-        do Memory.poke(memAddress+448, 0);
-        do Memory.poke(memAddress+480, 2060);
+    method void dispose() {
+        do Memory.deAlloc(this);
         return;
     }
 
-    method void drawTerrain3(int location) {
-        let memAddress = 16384+location;
-        do Memory.poke(memAddress+0, 0);
-        do Memory.poke(memAddress+32, 0);
-        do Memory.poke(memAddress+64, 0);
-        do Memory.poke(memAddress+96, 0);
-        do Memory.poke(memAddress+128, 0);
-        do Memory.poke(memAddress+160, 0);
-        do Memory.poke(memAddress+192, 0);
-        do Memory.poke(memAddress+224, 0);
-        do Memory.poke(memAddress+256, 0);
-        do Memory.poke(memAddress+288, 0);
-        do Memory.poke(memAddress+320, -1);
-        do Memory.poke(memAddress+352, -1);
-        do Memory.poke(memAddress+384, 0);
-        do Memory.poke(memAddress+416, 12558);
-        do Memory.poke(memAddress+448, 12288);
-        do Memory.poke(memAddress+480, 384);
-        return;
-    }
 }

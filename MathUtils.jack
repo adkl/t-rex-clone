@@ -5,12 +5,12 @@ class MathUtils {
         let desiredIndex = currentIndex + offset;
 
         if (desiredIndex > (arraySize - 1)) {
-            resultIndex = (arraySize - 1) - desiredIndex;
+            let resultIndex = (arraySize - 1) - desiredIndex;
         }
         else {
-            resultIndex = desiredIndex;
+            let resultIndex = desiredIndex;
         }
 
-        return resultIndex
+        return resultIndex;
     }
 }

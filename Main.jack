@@ -1,6 +1,6 @@
 class Main {
     function void main() {
-        var GameEngine engine;
+        var GameEngine gameEngine;
         let gameEngine = GameEngine.new();
         do gameEngine.run();
         do gameEngine.dispose();
