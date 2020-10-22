@@ -21,7 +21,7 @@ class GameEngine {
         let screenLength = 512;
         let bitmapBoxSize = 16;
 
-        let enemySequenceLength = 33;
+        let enemySequenceLength = 32;
 
         let dinoXPositionOffset = ((screenLength / bitmapBoxSize) / 2) - 1; // half of horizontal axis
         let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 11 * 32; // 10th row
@@ -49,7 +49,7 @@ class GameEngine {
         do drawTerrain();
 
         while(~clash) {
-            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, gameStep, dinoXPositionOffset + 1);
+            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, 32), dinoXPositionOffset + 1);
             let currentEnemy = enemySequence[currentEnemyIndex];
 
             if (jumped & (jumpCountdown > 0)) {
@@ -78,20 +78,17 @@ class GameEngine {
                 do Graphics.drawBlank(dinoJumpYPosition + dinoXPositionOffset);
             }
 
-            // do Graphics.drawDino(dinoPosition);
+            do Graphics.drawDino(dinoPosition);
             do printEnemySequence(gameStep, dinoPosition);
 
-            // if ((currentEnemy = 1) & ~jumped) {
-            //     let clash = true;
-            // }
+            if ((currentEnemy = 1) & ~jumped) {
+                let clash = true;
+            }
             
             // prepare next stage
             let dinoJustLanded = false;
 
             let gameStep = gameStep + 1;
-            if (gameStep = enemySequenceLength) {
-                let gameStep = 0;
-            }
             do Sys.wait(400);
         }
 
@@ -100,15 +97,15 @@ class GameEngine {
     }
 
     method void initializeEnemySequence() {
-        let enemySequence = Array.new(33);
-        let enemySequence[0] = 0;
+        let enemySequence = Array.new(32);
+        let enemySequence[0] = 1; // cactus
         let enemySequence[1] = 0;
         let enemySequence[2] = 0;
         let enemySequence[3] = 0;
-        let enemySequence[4] = 1; // cactus
+        let enemySequence[4] = 0;
         let enemySequence[5] = 0;
         let enemySequence[6] = 0;
-        let enemySequence[7] = 0;
+        let enemySequence[7] = 1;
         let enemySequence[8] = 0;
         let enemySequence[9] = 0;
         let enemySequence[10] = 0;
@@ -133,7 +130,6 @@ class GameEngine {
         let enemySequence[29] = 0;
         let enemySequence[30] = 0;
         let enemySequence[31] = 0;
-        let enemySequence[32] = 0;
         return;
     }
 
@@ -142,11 +138,19 @@ class GameEngine {
         var int i;
         var int enemyPosition;
         var int enemyValue;
+        var int numOfVisibleEnemies;
 
-        let enemyIndex = gameStep;
         let i = 0;
-        while(i < (screenLength / bitmapBoxSize)) {
-            let enemyIndex = MathUtils.getCircularIndex(enemySequence, enemySequenceLength - gameStep, i);
+
+        if (gameStep > 32) {
+            let numOfVisibleEnemies = 32;
+        }
+        else {
+            let numOfVisibleEnemies = gameStep;
+        }
+
+        while(i < numOfVisibleEnemies) {
+            let enemyIndex = MathUtils.getCircularIndex(enemySequence, MathUtils.modulo(gameStep, enemySequenceLength) + numOfVisibleEnemies, -i);
             let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) -1 - i);
 
             let enemyValue = enemySequence[enemyIndex];
