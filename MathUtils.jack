@@ -5,7 +5,7 @@ class MathUtils {
         let desiredIndex = currentIndex + offset;
 
         if (desiredIndex > (arraySize - 1)) {
-            let resultIndex = (arraySize - 1) - desiredIndex;
+            let resultIndex = Math.abs((arraySize - 1) - desiredIndex);
         }
         else {
             let resultIndex = desiredIndex;

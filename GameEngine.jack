@@ -24,8 +24,8 @@ class GameEngine {
         let enemySequenceLength = 33;
 
         let dinoXPositionOffset = ((screenLength / bitmapBoxSize) / 2) - 1; // half of horizontal axis
-        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 11; // 10th row
-        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 10; // 11th row
+        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 11 * 32; // 10th row
+        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 10 * 32; // 11th row
 
         return;
     }
@@ -39,6 +39,7 @@ class GameEngine {
         var int currentEnemyIndex;
         var boolean jumped;
         var int jumpCountdown;
+        var boolean dinoJustLanded;
 
         let clash = false;
 
@@ -51,40 +52,47 @@ class GameEngine {
             let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, gameStep, dinoXPositionOffset + 1);
             let currentEnemy = enemySequence[currentEnemyIndex];
 
-            // if (jumped & (jumpCountdown > 0)) {
-            //     let jumpCountdown = jumpCountdown - 1;
-            // }
+            if (jumped & (jumpCountdown > 0)) {
+                let jumpCountdown = jumpCountdown - 1;
+            }
 
-            // if (jumpCountdown = 0) {
-            //     let jumped = false;
-            // }
+            if (jumpCountdown = 0) {
+                let jumped = false;
+                let dinoJustLanded = true;
+            }
 
-            // let key = Keyboard.keyPressed();
-            // if ((key = 131) & ~jumped) { // up arrow
-            //     let jumped = true;
-            //     let jumpCountdown = 4;
-            // }
+            let key = Keyboard.keyPressed();
+            if ((key = 131) & ~jumped) { // up arrow
+                let jumped = true;
+                let jumpCountdown = 4;
+            }
 
-            // if (jumped) {
-            //     let dinoPosition = dinoJumpYPosition + (dinoXPositionOffset * bitmapBoxSize);
-            // }
-            // else {
-            //     let dinoPosition = dinoNoJumpYPosition + (dinoXPositionOffset * bitmapBoxSize);
-            // }
+            if (jumped) {
+                let dinoPosition = dinoJumpYPosition + dinoXPositionOffset;
+            }
+            else {
+                let dinoPosition = dinoNoJumpYPosition + dinoXPositionOffset;
+            }
+
+            if (dinoJustLanded) {
+                do Graphics.drawBlank(dinoJumpYPosition + dinoXPositionOffset);
+            }
 
             // do Graphics.drawDino(dinoPosition);
-            do printEnemySequence(gameStep);
+            do printEnemySequence(gameStep, dinoPosition);
 
             // if ((currentEnemy = 1) & ~jumped) {
             //     let clash = true;
             // }
             
             // prepare next stage
+            let dinoJustLanded = false;
+
             let gameStep = gameStep + 1;
             if (gameStep = enemySequenceLength) {
                 let gameStep = 0;
             }
-            do Sys.wait(1000);
+            do Sys.wait(400);
         }
 
         return;
@@ -129,7 +137,7 @@ class GameEngine {
         return;
     }
 
-    method void printEnemySequence(int gameStep) {
+    method void printEnemySequence(int gameStep, int dinoPosition) {
         var int enemyIndex;
         var int i;
         var int enemyPosition;
@@ -138,8 +146,8 @@ class GameEngine {
         let enemyIndex = gameStep;
         let i = 0;
         while(i < (screenLength / bitmapBoxSize)) {
-            let enemyIndex = MathUtils.getCircularIndex(enemySequence, gameStep, i);
-            let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) - i);
+            let enemyIndex = MathUtils.getCircularIndex(enemySequence, enemySequenceLength - gameStep, i);
+            let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) -1 - i);
 
             let enemyValue = enemySequence[enemyIndex];
 
@@ -147,7 +155,7 @@ class GameEngine {
                 do Graphics.drawCactus(enemyPosition);
             }
 
-            if (enemyValue = 0) {
+            if ((enemyValue = 0) & ~(enemyPosition = dinoPosition)) {
                 do Graphics.drawBlank(enemyPosition);
             }
 
