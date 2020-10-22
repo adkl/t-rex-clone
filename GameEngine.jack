@@ -40,6 +40,7 @@ class GameEngine {
         var boolean jumped;
         var int jumpCountdown;
         var boolean dinoJustLanded;
+        var boolean dinoJustJumped;
 
         let clash = false;
 
@@ -49,8 +50,14 @@ class GameEngine {
         do drawTerrain();
 
         while(~clash) {
-            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, 32), dinoXPositionOffset + 1);
-            let currentEnemy = enemySequence[currentEnemyIndex];
+            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(32 + gameStep, 32), dinoXPositionOffset + 1);
+            
+            if (gameStep < 15) {
+                let currentEnemy = 0;
+            }
+            else {
+                let currentEnemy = enemySequence[currentEnemyIndex];
+            }
 
             if (jumped & (jumpCountdown > 0)) {
                 let jumpCountdown = jumpCountdown - 1;
@@ -65,6 +72,7 @@ class GameEngine {
             if ((key = 131) & ~jumped) { // up arrow
                 let jumped = true;
                 let jumpCountdown = 4;
+                let dinoJustJumped = true;
             }
 
             if (jumped) {
@@ -78,6 +86,10 @@ class GameEngine {
                 do Graphics.drawBlank(dinoJumpYPosition + dinoXPositionOffset);
             }
 
+            if (dinoJustJumped) {
+                do Graphics.drawBlank(dinoNoJumpYPosition + dinoXPositionOffset);
+            }
+
             do Graphics.drawDino(dinoPosition);
             do printEnemySequence(gameStep, dinoPosition);
 
@@ -87,6 +99,7 @@ class GameEngine {
             
             // prepare next stage
             let dinoJustLanded = false;
+            let dinoJustJumped = false;
 
             let gameStep = gameStep + 1;
             do Sys.wait(400);
