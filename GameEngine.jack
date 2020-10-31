@@ -97,12 +97,8 @@ class GameEngine {
             }
 
             do Graphics.drawDino(dinoPosition);
-            do printEnemySequence(gameStep, dinoPosition);
+            let clash = processEnemySequence(gameStep, dinoPosition);
 
-            // if ((currentEnemy = 1) & ~jumped) {
-            //     let clash = true;
-            // }
-            
             // prepare next stage
             let dinoJustLanded = false;
             let dinoJustJumped = false;
@@ -110,10 +106,7 @@ class GameEngine {
             let gameStep = gameStep + 1;
             do Sys.wait(300);
         }
-        do Output.printInt(gameStep);
-        do Output.printString("clash");
         return;
-        // clash happened
     }
 
     method void initializeEnemySequence() {
@@ -125,14 +118,14 @@ class GameEngine {
         let enemySequence[4] = 0;
         let enemySequence[5] = 0;
         let enemySequence[6] = 0;
-        let enemySequence[7] = 1;
+        let enemySequence[7] = 1; // cactus
         let enemySequence[8] = 0;
         let enemySequence[9] = 0;
         let enemySequence[10] = 0;
         let enemySequence[11] = 0;
         let enemySequence[12] = 0;
         let enemySequence[13] = 0;
-        let enemySequence[14] = 1;
+        let enemySequence[14] = 1; // cactus
         let enemySequence[15] = 0;
         let enemySequence[16] = 0;
         let enemySequence[17] = 0;
@@ -153,14 +146,17 @@ class GameEngine {
         return;
     }
 
-    method void printEnemySequence(int gameStep, int dinoPosition) {
+    method boolean processEnemySequence(int gameStep, int dinoPosition) {
+        // Prints the current enemy sequence and detect the
         var int enemyIndex;
         var int i;
         var int enemyPosition;
         var int enemyValue;
         var int numOfVisibleEnemies;
+        var boolean clash;
 
         let i = 0;
+        let clash = false;
 
         if (gameStep > 32) {
             let numOfVisibleEnemies = 32;
@@ -169,7 +165,7 @@ class GameEngine {
             let numOfVisibleEnemies = gameStep;
         }
 
-        while(i < numOfVisibleEnemies) {
+        while((i < numOfVisibleEnemies) & ~clash) {
             let enemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, enemySequenceLength), -i);
             let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) -1 - i);
 
@@ -183,10 +179,14 @@ class GameEngine {
                 do Graphics.drawBlank(enemyPosition);
             }
 
+            if ((enemyValue = 1) & (enemyPosition = dinoPosition)) {
+                let clash = true;
+            }
+
             let i = i + 1;
         }
 
-        return;
+        return clash;
     }
 
     method void drawTerrain() {
