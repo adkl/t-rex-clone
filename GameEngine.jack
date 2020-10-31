@@ -6,26 +6,39 @@ class GameEngine {
     field int screenHeight;
     field int bitmapBoxSize;
 
+    field int numOfRows;
+    field int numOfColumns;
+
     field int dinoXPositionOffset;
     field int dinoNoJumpYPosition;
     field int dinoJumpYPosition;
+
+    field int delay;
+    field int minimumDelay;
+    field int delayDecrement;
 
     constructor GameEngine new() {
         return this;
     }
 
     method void initializeComponents() {
+        let enemySequenceLength = 32;
         do initializeEnemySequence();
 
         let screenHeight = 256;
         let screenLength = 512;
         let bitmapBoxSize = 16;
 
-        let enemySequenceLength = 32;
+        let numOfRows = screenHeight / bitmapBoxSize;
+        let numOfColumns = screenLength / bitmapBoxSize;
 
-        let dinoXPositionOffset = ((screenLength / bitmapBoxSize) / 2) - 1; // half of horizontal axis
-        let dinoNoJumpYPosition = (screenHeight / bitmapBoxSize) * 11 * 32; // 10th row
-        let dinoJumpYPosition = (screenHeight / bitmapBoxSize) * 10 * 32; // 11th row
+        let dinoXPositionOffset = (numOfColumns / 2) - 1; // half of horizontal axis
+        let dinoNoJumpYPosition = numOfRows * 11 * numOfColumns; // 10th row
+        let dinoJumpYPosition = numOfRows * 10 * numOfColumns; // 11th row
+
+        let delay = 300;
+        let minimumDelay = 100;
+        let delayDecrement = 15;
 
         return;
     }
@@ -44,36 +57,25 @@ class GameEngine {
         var int currentEnemyOffset;
 
         let clash = false;
-
         let gameStep = 0;
 
         do initializeComponents();
         do drawTerrain();
 
         while(~clash) {
-            
-            // if (gameStep < 16) {
-            //     let currentEnemy = 0;
-            // }
-            // else {
-            //     let currentEnemyOffset = gameStep - 16;
-            //     if (currentEnemyOffset > 16) {
-            //         let currentEnemyOffset = 16;
-            //     }
 
-            //     let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, 32), gameStep-currentEnemyOffset);
-            //     let currentEnemy = enemySequence[currentEnemyIndex];
-            // }
-
+            // decrement jump duration
             if (jumped & (jumpCountdown > 0)) {
                 let jumpCountdown = jumpCountdown - 1;
             }
 
+            // just landed
             if (jumpCountdown = 0) {
                 let jumped = false;
                 let dinoJustLanded = true;
             }
 
+            // detect just jumped
             let key = Keyboard.keyPressed();
             if ((key = 131) & ~jumped) { // up arrow
                 let jumped = true;
@@ -103,14 +105,24 @@ class GameEngine {
             let dinoJustLanded = false;
             let dinoJustJumped = false;
 
+            if (MathUtils.modulo(gameStep, 2 * enemySequenceLength) = 0) {
+                let delay = delay - delayDecrement;
+                if (delay < minimumDelay) {
+                    let delay = minimumDelay;
+                }
+            }
+
             let gameStep = gameStep + 1;
-            do Sys.wait(300);
+            do Sys.wait(delay);
         }
+
+        // Game Over
+        
         return;
     }
 
     method void initializeEnemySequence() {
-        let enemySequence = Array.new(32);
+        let enemySequence = Array.new(enemySequenceLength);
         let enemySequence[0] = 1; // cactus
         let enemySequence[1] = 0;
         let enemySequence[2] = 0;
@@ -147,7 +159,7 @@ class GameEngine {
     }
 
     method boolean processEnemySequence(int gameStep, int dinoPosition) {
-        // Prints the current enemy sequence and detect the
+        // Prints the current enemy sequence and detect the collision
         var int enemyIndex;
         var int i;
         var int enemyPosition;
@@ -158,8 +170,8 @@ class GameEngine {
         let i = 0;
         let clash = false;
 
-        if (gameStep > 32) {
-            let numOfVisibleEnemies = 32;
+        if (gameStep > numOfColumns) {
+            let numOfVisibleEnemies = numOfColumns;
         }
         else {
             let numOfVisibleEnemies = gameStep;
@@ -167,9 +179,8 @@ class GameEngine {
 
         while((i < numOfVisibleEnemies) & ~clash) {
             let enemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, enemySequenceLength), -i);
-            let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) -1 - i);
-
             let enemyValue = enemySequence[enemyIndex];
+            let enemyPosition = (11 * numOfColumns *  numOfRows) + (numOfColumns -1 - i);
 
             if (enemyValue = 1) {
                 do Graphics.drawCactus(enemyPosition);
@@ -193,10 +204,10 @@ class GameEngine {
         var int position;
         var int i;
 
-        let position = 12 * (screenHeight / bitmapBoxSize) * 32;
+        let position = 12 * numOfRows * numOfColumns;
 
         let i = 0;
-        while(i < (screenLength / bitmapBoxSize)) {
+        while(i < numOfColumns) {
             do Graphics.drawTerrain1(position);
             let position = position + 1;
 

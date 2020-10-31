@@ -1,5 +1,6 @@
 class MathUtils {
     function int getCircularIndex(int arraySize, int currentIndex, int offset) {
+        // returns the overflow index of 'offset' from 'currentIndex' of the array of the 'arraySize' size
         var int desiredIndex;
         var int resultIndex;
         let desiredIndex = currentIndex + offset;
