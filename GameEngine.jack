@@ -33,8 +33,8 @@ class GameEngine {
         let numOfColumns = screenLength / bitmapBoxSize;
 
         let dinoXPositionOffset = (numOfColumns / 2) - 1; // half of horizontal axis
-        let dinoNoJumpYPosition = numOfRows * 11 * numOfColumns; // 10th row
-        let dinoJumpYPosition = numOfRows * 10 * numOfColumns; // 11th row
+        let dinoNoJumpYPosition = numOfRows * 11 * numOfColumns; // 11th row
+        let dinoJumpYPosition = numOfRows * 10 * numOfColumns; // 10th row
 
         let delay = 300;
         let minimumDelay = 100;
@@ -118,6 +118,11 @@ class GameEngine {
 
         // Game Over
         
+        do Output.println(); do Output.println(); do Output.println(); do Output.println();
+        do Output.printString("    *** G A M E  O V E R ***    ");
+        do Output.printString("        Your score is: ");
+        do Output.printInt(gameStep);
+
         return;
     }
 
@@ -227,5 +232,4 @@ class GameEngine {
         do Memory.deAlloc(this);
         return;
     }
-
 }
