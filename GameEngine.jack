@@ -41,6 +41,7 @@ class GameEngine {
         var int jumpCountdown;
         var boolean dinoJustLanded;
         var boolean dinoJustJumped;
+        var int currentEnemyOffset;
 
         let clash = false;
 
@@ -50,14 +51,19 @@ class GameEngine {
         do drawTerrain();
 
         while(~clash) {
-            let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(32 + gameStep, 32), dinoXPositionOffset + 1);
             
-            if (gameStep < 15) {
-                let currentEnemy = 0;
-            }
-            else {
-                let currentEnemy = enemySequence[currentEnemyIndex];
-            }
+            // if (gameStep < 16) {
+            //     let currentEnemy = 0;
+            // }
+            // else {
+            //     let currentEnemyOffset = gameStep - 16;
+            //     if (currentEnemyOffset > 16) {
+            //         let currentEnemyOffset = 16;
+            //     }
+
+            //     let currentEnemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, 32), gameStep-currentEnemyOffset);
+            //     let currentEnemy = enemySequence[currentEnemyIndex];
+            // }
 
             if (jumped & (jumpCountdown > 0)) {
                 let jumpCountdown = jumpCountdown - 1;
@@ -93,18 +99,19 @@ class GameEngine {
             do Graphics.drawDino(dinoPosition);
             do printEnemySequence(gameStep, dinoPosition);
 
-            if ((currentEnemy = 1) & ~jumped) {
-                let clash = true;
-            }
+            // if ((currentEnemy = 1) & ~jumped) {
+            //     let clash = true;
+            // }
             
             // prepare next stage
             let dinoJustLanded = false;
             let dinoJustJumped = false;
 
             let gameStep = gameStep + 1;
-            do Sys.wait(400);
+            do Sys.wait(300);
         }
-
+        do Output.printInt(gameStep);
+        do Output.printString("clash");
         return;
         // clash happened
     }
@@ -163,7 +170,7 @@ class GameEngine {
         }
 
         while(i < numOfVisibleEnemies) {
-            let enemyIndex = MathUtils.getCircularIndex(enemySequence, MathUtils.modulo(gameStep, enemySequenceLength) + numOfVisibleEnemies, -i);
+            let enemyIndex = MathUtils.getCircularIndex(enemySequenceLength, MathUtils.modulo(gameStep, enemySequenceLength), -i);
             let enemyPosition = (11 * 32 *  (screenHeight / bitmapBoxSize)) + ((screenLength / bitmapBoxSize) -1 - i);
 
             let enemyValue = enemySequence[enemyIndex];

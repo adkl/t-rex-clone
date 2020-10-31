@@ -5,19 +5,19 @@ class MathUtils {
         let desiredIndex = currentIndex + offset;
 
         if (desiredIndex > (arraySize - 1)) {
-            let resultIndex = desiredIndex - (arraySize - 1);
+            let resultIndex = desiredIndex - arraySize;
         }
         if (desiredIndex < 0) {
-            let resultIndex = (arraySize - 1) - Math.abs(desiredIndex);
+            let resultIndex = arraySize - Math.abs(desiredIndex);
         }
         else {
             let resultIndex = desiredIndex;
         }
 
         return resultIndex;
-    }
+}
 
     function int modulo(int num, int divisor) {
-        return (num - divisor * (num / divisor)); 
+        return (num - (divisor * (num / divisor))); 
     }
 }
